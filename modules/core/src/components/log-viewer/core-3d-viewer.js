@@ -41,15 +41,21 @@ import {normalizeStreamFilter} from '../../utils/stream-utils';
 import stats from '../../utils/stats';
 import memoize from '../../utils/memoize';
 
-import {DEFAULT_ORIGIN, CAR_DATA, LIGHTS, DEFAULT_CAR} from './constants';
+import {DEFAULT_ORIGIN, CAR_DATA, LIGHTS, DEFAULT_CAR, POST_PROCESS_EFFECT} from './constants';
+
+import {TRACKLETS_STREAMS} from '../../layers/objs-layer';
+import ObjsLayer from '../../layers/objs-layer';
+import { EARTH_LAYER } from '../../layers/static-layer';
 
 const noop = () => {};
 
 const Z_INDEX = {
+  circle: -1,
   car: 0,
   point: 1,
-  polygon: 2,
-  customDefault: 3
+  polyline: 2,
+  polygon: 3,
+  customDefault: 4
 };
 
 export default class Core3DViewer extends PureComponent {
@@ -206,15 +212,31 @@ export default class Core3DViewer extends PureComponent {
   _getCarLayer({frame, car}) {
     const {
       origin = DEFAULT_ORIGIN,
+      rotate_x = 0,
+      rotate_y = 0,
+      rotate_z = 0,
       mesh,
+      mesh_glass,
+      mesh_light,
+      mesh_wheel,
+      mesh_plate,
+      mesh_logo,
+      mesh_word,
       scale = [1, 1, 1],
       wireframe = false,
       texture = null,
-      color = [0, 0, 0]
+      color = [0, 0, 0],
+      color_glass = [0, 0, 0],
+      color_light = [0, 0, 0],
+      color_light_brake = [0, 0, 0],
+      color_wheel = [0, 0, 0],
+      color_plate = [0, 0, 0],
+      color_logo = [0, 0, 0],
+      color_word = [0, 0, 0]
     } = car;
 
-    return new SimpleMeshLayer({
-      id: 'car',
+    const car_body_layer = new SimpleMeshLayer({
+      id: 'car-body',
       opacity: 1,
       coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
       coordinateOrigin: frame.origin || DEFAULT_ORIGIN,
@@ -223,7 +245,10 @@ export default class Core3DViewer extends PureComponent {
         frame.vehicleRelativeTransform
           .clone()
           .translate(origin)
-          .scale(scale),
+          .scale(scale)
+          .rotateX(rotate_x)
+          .rotateY(rotate_y)
+          .rotateZ(rotate_z),
       mesh,
       data: CAR_DATA,
       pickable: true,
@@ -236,6 +261,180 @@ export default class Core3DViewer extends PureComponent {
       },
       zIndex: Z_INDEX.car
     });
+
+    const car_glass_layer = new SimpleMeshLayer({
+      id: 'car-glass',
+      opacity: 1,
+      coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      coordinateOrigin: frame.origin || DEFAULT_ORIGIN,
+      // Adjust for car center position relative to GPS/IMU
+      getTransformMatrix: d =>
+        frame.vehicleRelativeTransform
+          .clone()
+          .translate(origin)
+          .scale(scale)
+          .rotateX(rotate_x)
+          .rotateY(rotate_y)
+          .rotateZ(rotate_z),
+      mesh: mesh_glass,
+      data: CAR_DATA,
+      pickable: true,
+      getPosition: d => d,
+      getColor: color_glass, //color,
+      texture,
+      wireframe:false,
+      updateTriggers: {
+        getTransformMatrix: frame.vehicleRelativeTransform
+      },
+      zIndex: Z_INDEX.car+11
+    });
+
+    const stream_name = '/vehicle/brake';
+    const brake = (frame.streams && frame.streams[stream_name] && frame.streams[stream_name].variable) || false;
+    const car_light_layer = new SimpleMeshLayer({
+      id: 'car-rearlight',
+      opacity: 1,
+      coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      coordinateOrigin: frame.origin || DEFAULT_ORIGIN,
+      // Adjust for car center position relative to GPS/IMU
+      getTransformMatrix: d =>
+        frame.vehicleRelativeTransform
+          .clone()
+          .translate(origin)
+          .scale(scale)
+          .rotateX(rotate_x)
+          .rotateY(rotate_y)
+          .rotateZ(rotate_z),
+      mesh: mesh_light,
+      data: CAR_DATA,
+      pickable: true,
+      getPosition: d => d,
+      getColor: brake ? color_light_brake : color_light, //color,
+      texture,
+      wireframe:false,
+      updateTriggers: {
+        getTransformMatrix: frame.vehicleRelativeTransform
+      },
+      zIndex: Z_INDEX.car+12
+    });
+
+    const car_wheel_layer = new SimpleMeshLayer({
+      id: 'car-wheel',
+      opacity: 1,
+      coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      coordinateOrigin: frame.origin || DEFAULT_ORIGIN,
+      // Adjust for car center position relative to GPS/IMU
+      getTransformMatrix: d =>
+        frame.vehicleRelativeTransform
+          .clone()
+          .translate(origin)
+          .scale(scale)
+          .rotateX(rotate_x)
+          .rotateY(rotate_y)
+          .rotateZ(rotate_z),
+      mesh: mesh_wheel,
+      data: CAR_DATA,
+      pickable: true,
+      getPosition: d => d,
+      getColor: color_wheel, //color,
+      texture,
+      wireframe,
+      updateTriggers: {
+        getTransformMatrix: frame.vehicleRelativeTransform
+      },
+      zIndex: Z_INDEX.car+14
+    });
+
+    const car_plate_layer = new SimpleMeshLayer({
+      id: 'car-plate',
+      opacity: 1,
+      coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      coordinateOrigin: frame.origin || DEFAULT_ORIGIN,
+      // Adjust for car center position relative to GPS/IMU
+      getTransformMatrix: d =>
+        frame.vehicleRelativeTransform
+          .clone()
+          .translate(origin)
+          .scale(scale)
+          .rotateX(rotate_x)
+          .rotateY(rotate_y)
+          .rotateZ(rotate_z),
+      mesh: mesh_plate,
+      data: CAR_DATA,
+      pickable: true,
+      getPosition: d => d,
+      getColor: color_plate, //color,
+      texture,
+      wireframe,
+      updateTriggers: {
+        getTransformMatrix: frame.vehicleRelativeTransform
+      },
+      zIndex: Z_INDEX.car+15
+    });
+
+    const car_logo_layer = new SimpleMeshLayer({
+      id: 'car-logo',
+      opacity: 1,
+      coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      coordinateOrigin: frame.origin || DEFAULT_ORIGIN,
+      // Adjust for car center position relative to GPS/IMU
+      getTransformMatrix: d =>
+        frame.vehicleRelativeTransform
+          .clone()
+          .translate(origin)
+          .scale(scale)
+          .rotateX(rotate_x)
+          .rotateY(rotate_y)
+          .rotateZ(rotate_z),
+      mesh: mesh_logo,
+      data: CAR_DATA,
+      pickable: true,
+      getPosition: d => d,
+      getColor: color_logo, //color,
+      texture,
+      wireframe,
+      updateTriggers: {
+        getTransformMatrix: frame.vehicleRelativeTransform
+      },
+      zIndex: Z_INDEX.car+16
+    });
+
+    const car_word_layer = new SimpleMeshLayer({
+      id: 'car-word',
+      opacity: 1,
+      coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+      coordinateOrigin: frame.origin || DEFAULT_ORIGIN,
+      // Adjust for car center position relative to GPS/IMU
+      getTransformMatrix: d =>
+        frame.vehicleRelativeTransform
+          .clone()
+          .translate(origin)
+          .scale(scale)
+          .rotateX(rotate_x)
+          .rotateY(rotate_y)
+          .rotateZ(rotate_z),
+      mesh: mesh_word,
+      data: CAR_DATA,
+      pickable: true,
+      getPosition: d => d,
+      getColor: color_word, //color,
+      texture,
+      wireframe,
+      updateTriggers: {
+        getTransformMatrix: frame.vehicleRelativeTransform
+      },
+      zIndex: Z_INDEX.car+17
+    });
+
+    return [
+      car_body_layer,
+      car_glass_layer,
+      car_light_layer,
+      car_wheel_layer,
+      car_plate_layer,
+      car_logo_layer,
+      car_word_layer,
+    ];
   }
 
   _getLayers(opts) {
@@ -260,7 +459,10 @@ export default class Core3DViewer extends PureComponent {
         .filter(streamFilter)
     );
 
-    let layerList = [this._getCarLayer(opts)];
+    let layerList = [
+      EARTH_LAYER, 
+      ...this._getCarLayer(opts),
+    ];
 
     layerList = layerList.concat(
       Array.from(featuresAndFutures)
@@ -280,6 +482,29 @@ export default class Core3DViewer extends PureComponent {
           // Support both features and lookAheads, respectively
           const primitives = stream.features || stream;
           if (primitives && primitives.length) {
+            if (TRACKLETS_STREAMS.includes(streamName)) {
+              // console.log('stream.features=', primitives[0].base.classes[0], 'stream=', stream);
+              // console.log('coordinateProps=', coordinateProps, 'stylesheet=', stylesheet);
+
+              return new ObjsLayer({
+                id: `xviz-${streamName}`,
+                ...coordinateProps,
+
+                pickable: true,
+
+                data: primitives,
+                style: stylesheet,
+                objectStates,
+                vehicleRelativeTransform: frame.vehicleRelativeTransform,
+
+                // Hack: draw extruded polygons last to defeat depth test when rendering translucent objects
+                // This is not used by deck.gl, only used in this function to sort the layers
+                zIndex: Z_INDEX.car,
+
+                // Selection props (app defined, not used by deck.gl)
+                streamName
+              })
+            } else {
             return new XVIZLayer({
               id: `xviz-${streamName}`,
               ...coordinateProps,
@@ -298,6 +523,7 @@ export default class Core3DViewer extends PureComponent {
               // Selection props (app defined, not used by deck.gl)
               streamName
             });
+          }
           }
           return null;
         })

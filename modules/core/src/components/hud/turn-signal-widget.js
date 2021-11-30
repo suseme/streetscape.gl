@@ -25,12 +25,12 @@ import styled from '@emotion/styled';
 
 import BaseWidget from './base-widget';
 
-const CONTAINER_STYLE = {lineHeight: 0, textAlign: 'center'};
+const CONTAINER_STYLE = {lineHeight: 0, textAlign: 'center', background: "#00000000"};
 
 const ArrowComponent = styled.svg(props => ({
   height: props.theme.controlSize,
   margin: props.theme.spacingTiny,
-  fill: props.isOn ? props.theme.textColorPrimary : props.theme.controlColorDisabled,
+  fill: props.isOn ? props.theme.turnColorPrimary : props.theme.turnColorDisabled,
   ...evaluateStyle(props.userStyle, props)
 }));
 

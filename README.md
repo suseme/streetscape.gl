@@ -1,3 +1,11 @@
+AD HMI
+===
+
+Base on streetscape.gl project, used for AD system demo.
+![screen capture](screen_cap_thumb.jpg)
+
+---
+
 # streetscape.gl
 
 streetscape.gl is a toolkit for visualizing autonomous and robotics data in the

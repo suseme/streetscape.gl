@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="generator" content="HTML Tidy for Windows (vers 15 August 2007), see www.w3.org">
+<meta charset='UTF-8'>
+<title>AD HMI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style type="text/css">
+body { 
+  margin: 0;
+  background: #B9DCFF url(./assets/sky-01.jpg) no-repeat fixed center;
+}
+#container { position: fixed; display: flex; width: 100vw; height: 100vh; overflow: hidden; }
+#control-panel { box-sizing: border-box; left: 12px; top: 12px; width: 10%; padding: 12px; position: relative; z-index: 1; box-shadow: 0 0 8px rgba(0,0,0,0.3); height: 100%; overflow-x: hidden; overflow-y: auto; }
+#control-panel hr { margin: 24px -12px; opacity: 0.3; }
+#log-panel { flex-grow: 1; display: flex; flex-direction: column; height: 100%; }
+#map-view { flex-grow: 1; height: 100%; position: relative; }
+#timeline { padding: 24px 0; position: relative; }
+#hud hr {margin: 0; opacity: 0.3;}
+#speed {
+  position: fixed;
+  bottom: calc(4vh - 200px);
+  left: calc(20% - 106px);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+#acceleration {
+  position: fixed;
+  bottom: calc(4vh - 200px);
+  right: calc(20% - 106px);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+#acceleration_lat
+{
+  position: fixed;
+  /* bottom: calc(4vh - 200px); */
+  top: calc(96vh - 20px);
+  right: calc(20% - 88px);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+#toolbar {
+  position: fixed;
+  top: calc(70vh - 74px);
+  left: 0;
+  transform: translateY(-50%);
+}
+#target_speed {
+  position: absolute;
+  top: calc(0vh + 122px);
+  left: calc(50% - 108px);
+  transform: translateY(-50%);
+}
+#fct_state {
+  position: absolute;
+  top: calc(28vh);
+  left: calc(25%);
+  transform: translateY(-50%);
+}
+#gear_state {
+  position: absolute;
+  top: calc(99vh - 30px);
+  left: calc(20% - 88px);
+  transform: translateY(-50%);
+}
+#ad_state {
+  position: absolute;
+  top: calc(99vh - 30px);
+  left: calc(50% - 48px);
+  transform: translateY(-50%);
+}
+#hf_state {
+  position: absolute;
+  top: calc(0vh + 55px);
+  left: calc(50% - 155px);
+  transform: translateY(-50%);
+}
+#wrn_icon {
+  position: absolute;
+  top: calc(30vh - 0px);
+  left: calc(25vh - 0px);
+  transform: translateY(-50%);
+}
+#wrn_txt {
+  position: absolute;
+  top: calc(90vh - 57px);
+  left: calc(50% - 343px);
+  transform: translateY(-50%);
+}
+
+/* weather background start */
+    #weather {
+      position: absolute;
+      padding: 0 20px;
+      height: 125px;
+      left: 50%;
+      top: 100px;
+      transform: translate(-50%);
+      font-size: 16px;
+      color: rgb(255, 255, 255);
+      vertical-align: middle;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .weather-icon {
+      width: 120px;
+      height: 68px;
+      background-repeat: round;
+    }
+
+    .information-box{
+      width: 75px;
+      height: 68px;
+      display: flex;
+      flex-direction: column;
+      margin-left: 15px;
+    }
+    .wind-box{
+      width: 150px;
+      height: 68px;
+      display: flex;
+      flex-direction: column;
+      margin-left: 15px;
+    }
+    .last-time{
+      width: 150px;
+      height: 68px;
+    }
+    #he-plugin-standard{
+      position:fixed!important;
+      left:0;
+      top:0;
+      padding:100px 0 0 0!important;     
+      width:100%!important;
+      height:100vh!important;
+    }
+    #he-plugin-standard ::v-deep .wv-lt-location>a[data-v-4b9dcab4]{
+      display:none!important;
+    }
+/* weather background end */
+</style>
+<link rel="icon" type="img/ico" href="favicon.ico">
+<link rel="stylesheet" href="assets/style.css" type="text/css">
+</head>
+<body>
+  <div id="he-plugin-standard"></div>
+  <div id="app"></div>
+  <script>
+    WIDGET = {
+      "CONFIG": {
+        "layout": "1",
+        "width": "450",
+        "height": "150",
+        "background": "1",
+        "dataColor": "FFFFFF",
+        "modules": "10",
+        "key": "6a4d2fb32bdc4ab7a92e006193c600d7"
+      }
+    }
+  </script>
+  <script src="https://widget.qweather.net/standard/static/js/he-standard-common.js?v=2.0"></script>
+  <script src='bundle.js' type="text/javascript"></script>
+</body>
+</html>
